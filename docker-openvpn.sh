@@ -11,15 +11,15 @@ read -p "OVPN Port (1194): " OVPN_PORT
 read -p "OVPN Server IP (localhost): " OVPN_IP
 [ -z "$OVPN_IP" ] && OVPN_IP=localhost
 
+read -p "OVPN User (client): " OVPN_USER
+[ -z "$OVPN_USER" ] && OVPN_USER=client
+
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://$OVPN_IP:$OVPN_PORT
 
 docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
 
 docker run -v $OVPN_DATA:/etc/openvpn -d -p $OVPN_PORT:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full avt nopass
-
-read -p "OVPN User (client): " OVPN_USER
-[ -z "$OVPN_USER" ] && OVPN_USER=client
+docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full $OVPN_USER nopass
 
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient $OVPN_USER > $OVPN_USER.ovpn
